@@ -7,7 +7,16 @@ from urllib.parse import urlparse
 GITHUB_API_URL = "https://api.github.com/repos/{owner}/{repo}/contents/{path}"
 LIST_FILES_URL = "https://api.github.com/repos/{owner}/{repo}/contents/"
 
-def get_github_file(owner, repo, path, ref="main"):
+def get_default_branch(owner, repo):
+    url = f"https://api.github.com/repos/{owner}/{repo}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json().get("default_branch", "main")
+    return "main"
+
+def get_github_file(owner, repo, path, ref=None):
+    if not ref:
+        ref = get_default_branch(owner, repo)
     url = GITHUB_API_URL.format(owner=owner, repo=repo, path=path)
     headers = {"Accept": "application/vnd.github.v3.raw"}
     response = requests.get(url, headers=headers, params={"ref": ref})
@@ -18,7 +27,9 @@ def get_github_file(owner, repo, path, ref="main"):
         click.echo(f"Error: {response.status_code} - {response.text}", err=True)
         return None
 
-def list_python_files(owner, repo, ref="main"):
+def list_python_files(owner, repo, ref=None):
+    if not ref:
+        ref = get_default_branch(owner, repo)
     url = LIST_FILES_URL.format(owner=owner, repo=repo)
     response = requests.get(url, params={"ref": ref})
     
@@ -37,7 +48,7 @@ def extract_function_code(content, function_name):
 @click.command()
 @click.argument("module_function", required=True)
 @click.option("--repo", help="Specify GitHub repository URL (e.g., https://github.com/user/repo)")
-@click.option("--branch", default="main", help="Specify branch or commit hash.")
+@click.option("--branch", default=None, help="Specify branch or commit hash.")
 def cli(module_function, repo, branch):
     "Fetch a module or function locally or from a GitHub repository."
     try:
@@ -48,6 +59,9 @@ def cli(module_function, repo, branch):
                 return
             
             owner, repo_name = parsed_url.path.strip("/").split("/")
+            
+            if not branch:
+                branch = get_default_branch(owner, repo_name)
             
             if ":" in module_function:
                 module_path, function_name = module_function.split(":", 1)
