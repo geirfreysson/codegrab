@@ -1,0 +1,31 @@
+[project]
+name = "codegrab"
+version = "0.1"
+description = "A command line tool to fetch code from github for AI purposes."
+readme = "README.md"
+authors = [{name = "Geir Freysson"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.8"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License"
+]
+dependencies = [
+    "click",
+    "requests>=2.32.3",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/geirfreysson/codegrab"
+Changelog = "https://github.com/geirfreysson/codegrab/releases"
+Issues = "https://github.com/geirfreysson/codegrab/issues"
+CI = "https://github.com/geirfreysson/codegrab/actions"
+
+[project.scripts]
+codegrab = "codegrab.cli:cli"
+
+[project.optional-dependencies]
+test = ["pytest"]
