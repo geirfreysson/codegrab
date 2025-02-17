@@ -3,6 +3,7 @@ import requests
 import re
 import os
 from urllib.parse import urlparse
+import ast
 
 GITHUB_API_URL = "https://api.github.com/repos/{owner}/{repo}/contents/{path}"
 LIST_FILES_URL = "https://api.github.com/repos/{owner}/{repo}/contents/"
@@ -58,10 +59,33 @@ def list_python_files(owner, repo, ref=None):
         click.echo(f"Error: {response.status_code} - {response.text}", err=True)
         return []
 
-def extract_function_code(content, function_name):
-    pattern = re.compile(rf"^def {function_name}\(.*?\):.*?(?=^def |^class |\Z)", re.DOTALL | re.MULTILINE)
-    match = pattern.search(content)
-    return match.group(0) if match else None
+def extract_function_code(content: str, function_name: str) -> str:
+    """
+    Extracts the function definition and its body from a given Python class code.
+
+    Parameters:
+        content (str): The string representation of the class code.
+        function_name (str): The name of the function to extract.
+
+    Returns:
+        str: The extracted function definition including decorators.
+    """
+    tree = ast.parse(content)
+    
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == function_name:
+            # Get the start and end line numbers
+            start_line = node.lineno - 1  # Convert to 0-based index
+            end_line = node.end_lineno  # Last line of the function
+            
+            # Extract relevant lines
+            lines = content.splitlines()
+            extracted_code = "\n".join(lines[start_line:end_line])
+            return extracted_code
+
+    return f"Function '{function_name}' not found."
+
+
 
 @click.command()
 @click.argument("module_function", required=True)
