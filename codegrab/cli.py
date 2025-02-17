@@ -7,9 +7,16 @@ from urllib.parse import urlparse
 GITHUB_API_URL = "https://api.github.com/repos/{owner}/{repo}/contents/{path}"
 LIST_FILES_URL = "https://api.github.com/repos/{owner}/{repo}/contents/"
 
+
 def get_default_branch(owner, repo):
     url = f"https://api.github.com/repos/{owner}/{repo}"
-    response = requests.get(url)
+    headers = {}
+    
+    github_token = os.getenv("GITHUB_TOKEN")
+    if github_token:
+        headers["Authorization"] = f"token {github_token}"
+    
+    response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json().get("default_branch", "main")
     return "main"
@@ -19,6 +26,11 @@ def get_github_file(owner, repo, path, ref=None):
         ref = get_default_branch(owner, repo)
     url = GITHUB_API_URL.format(owner=owner, repo=repo, path=path)
     headers = {"Accept": "application/vnd.github.v3.raw"}
+    
+    github_token = os.getenv("GITHUB_TOKEN")
+    if github_token:
+        headers["Authorization"] = f"token {github_token}"
+    
     response = requests.get(url, headers=headers, params={"ref": ref})
     
     if response.status_code == 200:
@@ -31,7 +43,13 @@ def list_python_files(owner, repo, ref=None):
     if not ref:
         ref = get_default_branch(owner, repo)
     url = LIST_FILES_URL.format(owner=owner, repo=repo)
-    response = requests.get(url, params={"ref": ref})
+    headers = {}
+    
+    github_token = os.getenv("GITHUB_TOKEN")
+    if github_token:
+        headers["Authorization"] = f"token {github_token}"
+    
+    response = requests.get(url, headers=headers, params={"ref": ref})
     
     if response.status_code == 200:
         files = [f["path"] for f in response.json() if f["type"] == "file" and f["path"].endswith(".py")]
@@ -106,5 +124,3 @@ def cli(module_function, repo, branch):
     except Exception as e:
         click.echo(f"Unexpected error: {e}", err=True)
 
-if __name__ == "__main__":
-    codegrab()
