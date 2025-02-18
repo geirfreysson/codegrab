@@ -1,6 +1,6 @@
 [project]
 name = "codegrab"
-version = "0.1"
+version = "0.1.1"
 description = "A command line tool to fetch code from github for AI purposes."
 readme = "README.md"
 authors = [{name = "Geir Freysson"}]
@@ -15,8 +15,18 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+exclude = [
+    ".env",
+    ".gitignore",
+    "uv.lock",
+    "PKG-INFO",
+    ".github",
+    "tests"
+]
 
 [project.urls]
 Homepage = "https://github.com/geirfreysson/codegrab"
