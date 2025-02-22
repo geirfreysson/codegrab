@@ -116,7 +116,7 @@ wheels = [
 
 [[package]]
 name = "codegrab"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -128,6 +128,11 @@ test = [
     { name = "pytest" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "click" },
@@ -135,6 +140,9 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.3" },
 ]
 provides-extras = ["test"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=8.3.4" }]
 
 [[package]]
 name = "colorama"

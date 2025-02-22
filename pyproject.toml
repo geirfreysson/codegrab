@@ -1,6 +1,6 @@
 [project]
 name = "codegrab"
-version = "0.1.1"
+version = "0.1.2"
 description = "A command line tool to fetch code from github for AI purposes."
 readme = "README.md"
 authors = [{name = "Geir Freysson"}]
@@ -26,6 +26,11 @@ exclude = [
     "PKG-INFO",
     ".github",
     "tests"
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
 ]
 
 [project.urls]
